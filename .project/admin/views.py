@@ -1,7 +1,7 @@
 import os.path
 from . import bp
 from flask import request, make_response, redirect, url_for, render_template, jsonify, session
-from utils.function import get_config
+from utils.function import get_config, refresh_wallet
 from werkzeug.security import check_password_hash
 import json
 from utils import restful
@@ -16,7 +16,7 @@ from utils.api import get_TRON_transfer_list
 from file_read_backwards import FileReadBackwards
 from utils.tool.generate_epay_order_url import generate_epay_order_url
 from utils.tool.QR_code import generate_QR_code
-from utils.api import is_API_work
+from utils.api import is_API_work, get_tron_balance
 
 
 @bp.route("/login", methods=['POST'])
@@ -193,6 +193,24 @@ def wallet_detail():
     wallet = OrderModel.query.filter(WalletModel.id == wallet_id).first()
     return_data = wallet.to_dict()
     return restful.ok(data=return_data)
+
+
+@bp.route("/wallet_refresh", methods=['POST'])
+def wallet_refresh():
+    input_data = request.get_json()
+
+    force_refresh = True if input_data.get('force_refresh') else False
+    refresh_wallet_id = input_data.get('id')
+
+    if refresh_wallet_id:
+        wallet = WalletModel.query.filter(WalletModel.id == refresh_wallet_id).first()
+        refresh_wallet(wallet, force_refresh=True)
+    else:
+        wallet_list = WalletModel.query.filter(WalletModel.balance != 0).all()
+        for wallet in wallet_list:
+            refresh_wallet(wallet, force_refresh=force_refresh)
+
+    return restful.ok()
 
 
 @bp.route("/transfer_detail", methods=['POST'])

@@ -4,17 +4,21 @@ from flask import current_app
 import config
 from models import TransferModel
 from utils.function import hex_to_base58, get_config
+import base58
+from utils.function import tron_address_to_parameter
+
 
 headers = {
     "Accept": "application/json",
     "Content-Type": "application/json",
 }
 
+TRON_usdt_contracts = r"TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t"
+
 
 # 该函数递归调用，直至翻到最后一页，data_list给默认值，直接调用为空，递归调用赋值
 def get_TRON_transfer_list(data_list=[], **kwargs):
     headers['TRON-PRO-API-KEY'] = get_config('trongrid_key')
-    TRON_usdt_contracts = r"TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t"
     # timestamp只能用整数，单位是毫秒
     url = f"https://api.trongrid.io/v1/contracts/{TRON_usdt_contracts}/events?event_name=Transfer&only_unconfirmed=false&only_confirmed=false&limit=200&order_by=block_timestamp%2Casc"
 
@@ -85,3 +89,25 @@ def is_API_work(contract_type):
             return True
 
     return False
+
+
+def get_tron_balance(address):
+    url = 'https://api.trongrid.io/wallet/triggerconstantcontract'
+    payload = {
+        'owner_address': base58.b58decode_check(address).hex(),
+        'contract_address': base58.b58decode_check(TRON_usdt_contracts).hex(),
+        'function_selector': 'balanceOf(address)',
+        'parameter': tron_address_to_parameter(address),
+    }
+    headers['TRON-PRO-API-KEY'] = get_config('trongrid_key')
+
+    response = requests.post(url, json=payload)
+    data = response.json()
+
+    if response.status_code != 200:
+        raise Exception(f"status code:{response.status_code} url:{url}")
+
+    val = data['constant_result'][0]
+    balance = int(val, 16) / 1e6
+
+    return balance

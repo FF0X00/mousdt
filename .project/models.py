@@ -157,6 +157,7 @@ class WalletModel(db.Model, SerializerMixin):
     balance = db.Column(db.Float(), nullable=False, default=0)
     start_lock_time = db.Column(db.Integer(), nullable=True)
     end_lock_time = db.Column(db.Integer(), nullable=True)
+    refresh_time = db.Column(db.Integer(), nullable=True)
     priority = db.Column(db.Integer, nullable=False, default=0)
 
     # 表上看不到的字段，表示关联

@@ -22,6 +22,7 @@ def first_run(app):
             epay_merchant_key = ''.join(random.choice(string.ascii_lowercase) for _ in range(16))
             db.session.add(ConfigModel(key='epay_merchant_key', value=epay_merchant_key))
             db.session.add(ConfigModel(key='order_duration', value='900'))
+            db.session.add(ConfigModel(key='wallet_refresh_cooldown_time', value='100'))
             db.session.add(ConfigModel(key='encrypt_key', value=generate_encrypt_key().decode()))
             db.session.add(ConfigModel(key='trongrid_key', value=''))
 

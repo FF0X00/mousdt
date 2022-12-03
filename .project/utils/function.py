@@ -6,7 +6,6 @@ import base58
 from cryptography.fernet import Fernet
 # from util.scheduler import finish_job
 from flask import g
-
 from exts import db
 from models import OrderModel, WalletModel, TransferModel, ConfigModel
 
@@ -102,3 +101,21 @@ def bordered_text(text):
     res.append('└' + '─' * width + '┘')
     return '\n'.join(res)
 
+
+def tron_address_to_parameter(addr):
+    return "0" * 24 + base58.b58decode_check(addr)[1:].hex()
+
+
+def refresh_wallet(wallet, force_refresh=False):
+    from utils.api import get_tron_balance
+
+    if not force_refresh:
+        if wallet.refresh_time and wallet.refresh_time + int(get_config('wallet_refresh_cooldown_time')) > int(
+                time.time()):
+            return wallet
+
+    balance = get_tron_balance(wallet.address)
+    wallet.balance = balance
+    wallet.refresh_time = int(time.time())
+    db.session.commit()
+    return wallet
