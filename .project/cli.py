@@ -1,10 +1,12 @@
 from flask import Flask
 import click
-from models import AdminModel
+from models import AdminModel, WalletModel
 from utils.function import bordered_text
 from exts import db
 import os
 import shutil
+import csv
+import datetime
 
 
 def register_cli(app: Flask):
@@ -15,8 +17,9 @@ def register_cli(app: Flask):
         if password == 'admin':
             print(bordered_text(' Please change a stronger password! '))
             return 0
-        AdminModel.query.filter(AdminModel.id == 1).first().username = username
-        AdminModel.query.filter(AdminModel.id == 1).first().password = password
+        admin = AdminModel.query.filter(AdminModel.id == 1).first()
+        admin.username = username
+        admin.password = password
         db.session.commit()
 
         print(bordered_text(f'   success\nusername:{username} \npassword:{password} '))
@@ -47,4 +50,20 @@ def register_cli(app: Flask):
         except:
             pass
 
+    @app.cli.command('dump_wallet', with_appcontext=True)
+    def dump_wallet():
+        output_basename = datetime.datetime.now().strftime("%Y%m%d%H%M%S_dumpwallet.csv")
+        output_dir = os.path.join('runtime', 'dump_wallet')
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+        output_path = os.path.join(output_dir, output_basename)
+
+        wallet_list = WalletModel.query.all()
+        with open(output_path, 'w', newline='', encoding='UTF8') as f:
+            wr = csv.writer(f)
+            header = ['address', 'secret', 'balance']
+            wr.writerow(header)
+            for wallet in wallet_list:
+                wr.writerow([wallet.address, wallet.secret, wallet.balance])
+        print(bordered_text(f'successfully save to:{output_path} '))
 
