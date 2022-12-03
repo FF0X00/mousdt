@@ -1,0 +1,10 @@
+.project/runtime
+.project/bak
+/frontend
+QR_code
+.project/utils/captcha
+.project/database.db
+.project/note.txt
+__pycache__
+.idea
+.git
