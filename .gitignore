@@ -8,7 +8,3 @@ QR_code
 __pycache__
 .idea
 .git
-
-*.html linguist-detectable=Python
-*.js linguist-detectable=Python
-*.css linguist-detectable=Python
