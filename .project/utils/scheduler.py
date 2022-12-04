@@ -49,17 +49,15 @@ def check_job():
         cache.set('end_block_timestamp', None)
         return None
 
-    # 获取时间范围内所有的交易，为防止错误及执行延迟，开始时间取上次的结束时间
-    # 若上次结束时间没有设置，则说明是第一次进行，将开始时间往前倒一个周期
-    # 每一次API获取成功后才设置结束时间，也就是说API请求报错也不会漏（报错出现在第一次则除外）
-    # 此处问题是，若第一次执行时API报错，则不会设置结束时间，下一个周期结束时间还是没有设置，还会认为是第一次执行
-    # 上次结束时间会在定时任务里面判断若无未付款订单则清空
-    # 若启动时有未付款订单，则启动前这段时间的交易无法检测到会漏单
+    # 第一次执行开始时间为当前时间减去两倍定时间隔，结束时间为当前时间减去一倍定时间隔，以订单最后一个间隔时间的漏单代价弥补服务器本地时间的误差
+    # 非第一次执行开始时间为上一次的结束时间，结束时间为当前时间减去一倍定时间隔，可以忽略代码运行带来的误差，还可以将之前定时器执行网络错误的时间段在这一次一起进行
+    # API漏单可能性：1.交易发生在最后一次API的时间段内，并且API执行时出错 2.交易发生在订单结束前一个间隔时间内
     start_block_timestamp = cache.get('end_block_timestamp')
     if not start_block_timestamp:
-        start_block_timestamp = int((time.time() - config.wallet_listener_interval) * 1000)
-
-    end_block_timestamp = int(time.time() * 1000)
+        start_block_timestamp = int((time.time() - config.wallet_listener_interval * 2) * 1000)
+    else:
+        start_block_timestamp = int(cache.get('end_block_timestamp'))
+    end_block_timestamp = int((time.time() - config.wallet_listener_interval) * 1000)
 
     result = db.session.query(OrderModel.contract_type).group_by(OrderModel.contract_type).all()
     contract_type_list = [temp[0] for temp in result]
@@ -67,8 +65,7 @@ def check_job():
     transfer_list = []
     for contract_type in contract_type_list:
         if contract_type == 'TRON':
-            current_app.logger.debug(
-                f'query {contract_type} api {datetime.datetime.fromtimestamp(int(start_block_timestamp / 1000)).strftime("%m-%d %H:%M:%S")}-{datetime.datetime.fromtimestamp(int(end_block_timestamp / 1000)).strftime("%m-%d %H:%M:%S")}')
+            current_app.logger.debug(f'query {contract_type} api [{datetime.datetime.fromtimestamp(int(start_block_timestamp / 1000)).strftime("%m-%d %H:%M:%S")} - {datetime.datetime.fromtimestamp(int(end_block_timestamp / 1000)).strftime("%m-%d %H:%M:%S")}]')
             transfer_list = get_TRON_transfer_list(start_block_timestamp=start_block_timestamp,end_block_timestamp=end_block_timestamp)
             # transfer_list = get_TRON_transfer_list(start_block_timestamp=1668788327000, end_block_timestamp=1668788329000)
 

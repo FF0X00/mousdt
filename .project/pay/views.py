@@ -36,6 +36,9 @@ def epay_order_submit():
 
     # 简单HTML注入检查
     for temp in request_data:
+        if "<" in request_data[temp] or ">" in request_data[temp]:
+            return restful.params_err(message='input invalid')
+
         if re.search(r"(<\s+?img)|(<\s+?script)", request_data[temp]):
             return 'input invalid'
 

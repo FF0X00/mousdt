@@ -1,3 +1,4 @@
+import config
 from create_app import create_app
 from flask_sqlalchemy import inspect
 from models import ConfigModel,AdminModel
@@ -6,9 +7,28 @@ import string
 from utils.function import bordered_text, generate_encrypt_key
 from utils.tool.generate_wallet import generate_wallet
 from exts import db, cache, scheduler, log_handler
+import ntplib
 
 
 def first_run(app):
+    ntp_client = ntplib.NTPClient()
+    rety_times = 0
+    while True:
+        try:
+            response = ntp_client.request('cn.pool.ntp.org', version=3)
+            break
+        except Exception as e:
+            if rety_times > 3:
+                raise Exception(e)
+            rety_times += 1
+
+    time_offset = -response.offset
+    if time_offset >= 0 and time_offset > config.wallet_listener_interval:
+        raise Exception(f"Your system time is faster {time_offset} seconds, please sync time")
+
+    if time_offset < 0 and -time_offset > config.wallet_listener_interval * 2:
+        raise Exception(f"Your system time is slower {-time_offset} seconds, please sync time")
+
     # 创建默认表，写入默认数据
     context_app = create_app()
 

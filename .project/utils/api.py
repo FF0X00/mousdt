@@ -73,6 +73,10 @@ def get_TRON_transfer_list(data_list=[], **kwargs):
         transfer.currency = "USDT"
         transfer.contract_type = "TRON"
 
+        # 跳过0元攻击
+        if int(data['result']['value']) == 0:
+            continue
+
         transfer_list.append(transfer)
 
     return transfer_list
