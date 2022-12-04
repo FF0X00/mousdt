@@ -9,6 +9,6 @@ __pycache__
 .idea
 .git
 
-*.html linguist-detectable=false
-*.js linguist-detectable=false
-*.css linguist-detectable=false
+*.html linguist-detectable=Python
+*.js linguist-detectable=Python
+*.css linguist-detectable=Python
