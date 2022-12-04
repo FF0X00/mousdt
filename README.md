@@ -27,6 +27,16 @@
 ### 清除所有运行数据（谨慎运行，请事先保存钱包等重要数据）
     python3 -m flask clear_data
 
+# 操作命令
+### 修改后台登录账号密码
+    python3 -m flask admin --username 你的用户名 --password 你的密码
+
+### 导出钱包数据
+    python3 -m flask flask dump_wallet
+
+### 清除所有运行数据（谨慎运行，请事先保存钱包等重要数据）
+    python3 -m flask clear_data
+
 # 有问题反馈
 在使用中有任何问题，欢迎反馈给我，可以用以下联系方式跟我交流
 
