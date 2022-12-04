@@ -12,6 +12,18 @@
 * 仅在有未付款订单时进行api查询，减小api请求资源消耗
 * 自带了易支付规则的接口
 
+# 项目结构
+```angular2html
+.project    # 后端代码
+page        # 前端页面
+├──pay───── # 支付页面前端代码
+└──admin─── # 后台管理页面前端代码
+static      # 静态文件
+```
+
+- [宝塔安装教程](wiki/BT_RUN.md)
+- 后台登录地址：`你的域名/page/admin`或`你的域名/page/admin/index.html`
+
 # 安装教程
 - [宝塔安装教程](wiki/BT_RUN.md)
 - 后台登录地址：`你的域名/page/admin`或`你的域名/page/admin/index.html`
