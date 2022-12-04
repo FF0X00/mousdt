@@ -27,7 +27,7 @@ def get_TRON_transfer_list(data_list=[], **kwargs):
     if start_block_timestamp and end_block_timestamp:
         url = url + f"&min_block_timestamp={start_block_timestamp}&max_block_timestamp={end_block_timestamp}"
 
-    current_app.logger.debug(f'request url:{url}')
+    current_app.logger.debug(f'get url:{url}')
     response = requests.get(url, headers=headers, timeout=config.wallet_listener_interval - 1)
 
     if response.status_code != 200:
@@ -52,7 +52,7 @@ def get_TRON_transfer_list(data_list=[], **kwargs):
                                                                end_block_timestamp=end_block_timestamp)
                 break
 
-            current_app.logger.debug(f'request url:{next_link}')
+            current_app.logger.debug(f'get url:{next_link}')
             response = requests.get(next_link, headers=headers, timeout=config.wallet_listener_interval - 1)
             data_list = data_list + json.loads(response.text)['data']
             if json.loads(response.text)['meta'].get("links"):
@@ -104,8 +104,8 @@ def get_tron_balance(address):
         'parameter': tron_address_to_parameter(address),
     }
     headers['TRON-PRO-API-KEY'] = get_config('trongrid_key')
-
-    response = requests.post(url, json=payload)
+    current_app.logger.debug(f'post url:{url}')
+    response = requests.post(url, json=payload, headers=headers)
     data = response.json()
 
     if response.status_code != 200:
