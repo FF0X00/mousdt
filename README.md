@@ -1,5 +1,5 @@
 # moUSDT
-一个使用Flask开发的USDT收款平台，通过HTTP接口进行订单的发起及回调，自带网页管理后台管理及查询订单、钱包、及链上交易
+一个使用Flask开发的USDT收款平台，通过HTTP接口进行订单的发起及回调，自带网页管理后台管理及查询订单、钱包、及链上交易，后台管理页面使用[vue-element-admin](https://github.com/PanJiaChen/vue-element-admin)搭建
 
 
 # moUSDT目前
@@ -30,6 +30,10 @@ static      # 静态文件
 - 后台登录地址：`你的域名/page/admin`或`你的域名/page/admin/index.html`
 
 # 操作命令
+#### 以下操作默认在`.project`目录下进行，python3命令自行替换成自己的python环境（若使用宝塔Python项目管理器则环境在`.project`目录下的`[MD5字符串]_venv`中）
+
+### DEBUG模式运行项目，并将`config.py`中的`DEBUG`改为`True`（生产环境不要用）
+    python3 -m flask run --port 5001 --debugger
 
 ### 修改后台登录账号密码
     python3 -m flask admin --username 你的用户名 --password 你的密码
@@ -37,7 +41,7 @@ static      # 静态文件
 ### 导出钱包数据
     python3 -m flask flask dump_wallet
 
-### 清除所有运行数据（谨慎运行，请事先保存钱包等重要数据）
+### 清除所有运行数据（谨慎运行，请事先将钱包等重要数据下载到本地）
     python3 -m flask clear_data
 
 # 有问题反馈
