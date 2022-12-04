@@ -64,6 +64,7 @@ rm -rf mousdt
 
 ## 3.创建环境运行项目
 ### 1.在Python项目管理器中的版本管理安装python3.7
+![img.png](img/BT_Python_Manager_position.png)
 ### 2.添加项目
 ![img.png](img/BT_PM2_setting.png)
 ### 3.若项目运行失败则查看日志错误信息
