@@ -12,6 +12,10 @@
 * 仅在有未付款订单时进行api查询，减小api请求资源消耗
 * 自带了易支付规则的接口
 
+# 演示DEMO
+https://user-images.githubusercontent.com/119736684/205488390-7c0e75dd-b42a-46eb-b644-3252020a682e.mp4
+
+
 # 项目结构
 ```angular2html
 .project    # 后端代码
