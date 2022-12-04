@@ -13,7 +13,7 @@ from utils.function import clean_pending_order, clean_locked_wallet, order_paid_
 
 def start_scheduler():
     # 检查超时订单，检查超时锁定钱包，检查最新交易
-    if not scheduler.get_job('check_job'):
+    if not scheduler.get_job('check job'):
         scheduler.add_job(check_job_with_context, 'interval', seconds=config.wallet_listener_interval, id="check_job")
 
     if not scheduler.get_job('clean_job'):

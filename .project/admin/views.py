@@ -28,11 +28,11 @@ def login():
 
     login_admin = AdminModel.query.filter(AdminModel.username == input_admin_username).first()
     if not login_admin:
-        return restful.permission_err()
+        return restful.params_err()
 
     is_password_correct = check_password_hash(login_admin.password, input_admin_password)
     if not is_password_correct:
-        return restful.permission_err()
+        return restful.params_err()
 
     # 生成管理员token
     token = create_access_token(identity='admin_' + str(login_admin.id))
