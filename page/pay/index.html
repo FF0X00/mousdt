@@ -32,7 +32,7 @@
 				<div style="text-align: center;"><strong style="font-size: 2rem;">剩余时间 {{ remain_time | parseTime }}</strong>
 				</div>
 				
-				<span>请在约定时间内使用<strong>{{ contract_type }}</strong>主网给地址<strong>{{ wallet_address }}</strong>转账<strong>{{ order_price }} {{ currency }}</strong></span>
+				<span>请在约定时间内使用<strong>{{ network }}</strong>主网给地址<strong>{{ wallet_address }}</strong>转账<strong>{{ order_price }} {{ currency }}</strong></span>
 				<br /><br />
 				
 				<span>转账请求需要1-3分钟时间广播，请在确定支付时预留足够的确认时间，若订单结束后仍然没有到账，请联系网站管理员</span>
@@ -75,7 +75,7 @@
 			return {
 				currency: 'USDT',
 				dialogVisible: false,
-				contract_type: undefined,
+				network: undefined,
 				order_price: undefined,
 				wallet_address: undefined,
 				paid_price: 0,
@@ -122,7 +122,7 @@
 					let transfer_items = response.data.data.transfer_items;
 					this.paid_price = response.data.data.transfer_items.map(x => x.price).reduce((a, b) => a + b, 0);
 					this.wallet_address = response.data.data.wallet_address;
-					this.contract_type = response.data.data.contract_type;
+					this.network = response.data.data.network;
 					this.order_price = response.data.data.order_price;
 					this.remain_time = response.data.data.remain_time;
 

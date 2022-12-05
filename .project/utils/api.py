@@ -71,7 +71,7 @@ def get_TRON_transfer_list(data_list=[], **kwargs):
         transfer.from_address = hex_to_base58(data['result']['from'])
         transfer.to_address = hex_to_base58(data['result']['to'])
         transfer.currency = "USDT"
-        transfer.contract_type = "TRON"
+        transfer.network = "TRON"
 
         # 跳过0元攻击
         if int(data['result']['value']) == 0:
@@ -82,8 +82,8 @@ def get_TRON_transfer_list(data_list=[], **kwargs):
     return transfer_list
 
 
-def is_API_work(contract_type):
-    if contract_type == "TRON":
+def is_API_work(network):
+    if network == "TRON":
         try:
             result = get_TRON_transfer_list(start_block_timestamp=1670038526000, end_block_timestamp=1670038528000)
         except:

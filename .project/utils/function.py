@@ -19,8 +19,8 @@ def get_config(config_key: str):
     return g.config.get(config_key, None)
 
 
-def free_wallet(contract_type='TRON'):
-    result = WalletModel.query.filter(WalletModel.status == 1, WalletModel.type == contract_type).order_by(
+def free_wallet(network='TRON'):
+    result = WalletModel.query.filter(WalletModel.status == 1, WalletModel.type == network).order_by(
         *WalletModel.query_order()).first()
     return result
 

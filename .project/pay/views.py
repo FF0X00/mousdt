@@ -52,7 +52,7 @@ def check_order():
                 'status': 0,
                 'order_price': order.price,
                 'wallet_address': order.wallet_address,
-                'contract_type': order.contract_type,
+                'network': order.network,
                 'remain_time': order.end_time - int(time.time()),
                 'transfer_items': paid_transfer_list
             })

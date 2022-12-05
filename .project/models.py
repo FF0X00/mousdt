@@ -22,7 +22,7 @@ class OrderModel(db.Model, SerializerMixin):
     merchant_order_id = db.Column(db.String(100), nullable=False)
     merchant_good_name = db.Column(db.String(100), nullable=False)
     currency = db.Column(db.String(100), nullable=False, default="USDT")
-    contract_type = db.Column(db.String(100), nullable=False)
+    network = db.Column(db.String(100), nullable=False)
     price = db.Column(db.Float(), nullable=False)
     paid_price = db.Column(db.Float(), nullable=False, default=0)
     notify_url = db.Column(db.String(255), nullable=False)
@@ -46,7 +46,7 @@ class OrderModel(db.Model, SerializerMixin):
         # from util.scheduler import start_check_job
 
         # 检查是否有钱包空闲
-        wallet = free_wallet(contract_type=self.contract_type)
+        wallet = free_wallet(network=self.network)
         if wallet is None:
             return None
 
@@ -129,7 +129,7 @@ class TransferModel(db.Model, SerializerMixin):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     currency = db.Column(db.String(100), nullable=False)
-    contract_type = db.Column(db.String(100), nullable=False)
+    network = db.Column(db.String(100), nullable=False)
     transaction_id = db.Column(db.String(100), nullable=False, unique=True)
     price = db.Column(db.Float(), nullable=False)
     create_time = db.Column(db.Integer(), nullable=False)
@@ -149,7 +149,7 @@ class WalletModel(db.Model, SerializerMixin):
     __tablename__ = 'wallet'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    type = db.Column(db.String(100), nullable=False)
+    network = db.Column(db.String(100), nullable=False)
     address = db.Column(db.String(100), nullable=False, unique=True)
     secret = db.Column(db.String(100), nullable=True)
     status = db.Column(db.Integer(), nullable=False, default=1)

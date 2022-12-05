@@ -53,9 +53,9 @@ def submit():
 
     # 支付方式
     if order_submit_data['type'] == 'TRON':
-        contract_type = 'TRON'
+        network = 'TRON'
     else:
-        contract_type = 'TRON'
+        network = 'TRON'
         # return restful.params_err('no such type')
 
     if order_submit_data['sign_type'] != "MD5":
@@ -79,13 +79,13 @@ def submit():
     if order_submit_data['sign'].lower() != sign_real.lower():
         return restful.params_err(message='sign fail')
 
-    if not is_API_work(contract_type):
+    if not is_API_work(network):
         return restful.params_err(message='API not work')
 
     # 创建订单
     order = OrderModel()
     order.notify_type = identify_name
-    order.contract_type = contract_type
+    order.network = network
     order.merchant_id = order_submit_data['pid']  # 商户id
     order.merchant_order_id = order_submit_data['out_trade_no']  # 商户订单id
     order.notify_url = order_submit_data['notify_url']  # 回调地址

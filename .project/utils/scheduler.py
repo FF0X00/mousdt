@@ -59,13 +59,13 @@ def check_job():
         start_block_timestamp = int(cache.get('end_block_timestamp'))
     end_block_timestamp = int((time.time() - config.wallet_listener_interval) * 1000)
 
-    result = db.session.query(OrderModel.contract_type).group_by(OrderModel.contract_type).all()
-    contract_type_list = [temp[0] for temp in result]
+    result = db.session.query(OrderModel.network).group_by(OrderModel.network).all()
+    network_list = [temp[0] for temp in result]
 
     transfer_list = []
-    for contract_type in contract_type_list:
-        if contract_type == 'TRON':
-            current_app.logger.debug(f'query {contract_type} api [{datetime.datetime.fromtimestamp(int(start_block_timestamp / 1000)).strftime("%m-%d %H:%M:%S")} - {datetime.datetime.fromtimestamp(int(end_block_timestamp / 1000)).strftime("%m-%d %H:%M:%S")}]')
+    for network in network_list:
+        if network == 'TRON':
+            current_app.logger.debug(f'query {network} api [{datetime.datetime.fromtimestamp(int(start_block_timestamp / 1000)).strftime("%m-%d %H:%M:%S")} - {datetime.datetime.fromtimestamp(int(end_block_timestamp / 1000)).strftime("%m-%d %H:%M:%S")}]')
             transfer_list = get_TRON_transfer_list(start_block_timestamp=start_block_timestamp,end_block_timestamp=end_block_timestamp)
             # transfer_list = get_TRON_transfer_list(start_block_timestamp=1668788327000, end_block_timestamp=1668788329000)
 
