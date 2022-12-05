@@ -14,9 +14,9 @@ from exts import db, limiter
 from utils.tool.generate_wallet import generate_wallet
 from utils.api import get_TRON_transfer_list
 from file_read_backwards import FileReadBackwards
-from utils.tool.generate_epay_order_url import generate_epay_order_url
 from utils.tool.QR_code import generate_QR_code
-from utils.api import is_API_work, get_tron_balance
+from utils.api import is_API_work
+from utils import SDK
 
 
 @bp.route("/login", methods=['POST'])
@@ -175,6 +175,8 @@ def order():
     return_data = {}
     return_data['total'] = record_query.total
     return_data['items'] = [temp.to_dict() for temp in record_query.items]
+
+    return_data['order_notify_types'] = [{'key': getattr(SDK, temp).identify_name, 'name': getattr(SDK, temp).name} for temp in SDK.__all__]
 
     return restful.ok(data=return_data)
 
@@ -410,9 +412,13 @@ def log():
 @bp.route("/order_url_generate", methods=['POST'])
 def order_url_generate():
     input_data = request.get_json()
-    order_type = input_data.get('type')
-    return_data = ""
-    if order_type == 'epay':
-        return_data = generate_epay_order_url()
+    order_type = input_data.get('notify_type')
+
+    if not order_type:
+        return restful.params_err('test')
+    if order_type not in SDK.__all__:
+        return restful.params_err()
+
+    return_data = getattr(SDK, order_type).generate_order_url()
 
     return restful.ok(data=return_data)

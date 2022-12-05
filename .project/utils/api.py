@@ -28,7 +28,7 @@ def get_TRON_transfer_list(data_list=[], **kwargs):
         url = url + f"&min_block_timestamp={start_block_timestamp}&max_block_timestamp={end_block_timestamp}"
 
     current_app.logger.debug(f'get url:{url}')
-    response = requests.get(url, headers=headers, timeout=config.wallet_listener_interval - 1)
+    response = requests.get(url, headers=headers, timeout=5)
 
     if response.status_code != 200:
         raise Exception(f"status code:{response.status_code} url:{url}")
@@ -53,7 +53,7 @@ def get_TRON_transfer_list(data_list=[], **kwargs):
                 break
 
             current_app.logger.debug(f'get url:{next_link}')
-            response = requests.get(next_link, headers=headers, timeout=config.wallet_listener_interval - 1)
+            response = requests.get(next_link, headers=headers, timeout=5)
             data_list = data_list + json.loads(response.text)['data']
             if json.loads(response.text)['meta'].get("links"):
                 next_link = json.loads(response.text)['meta']['links']['next']

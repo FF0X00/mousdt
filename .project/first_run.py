@@ -12,15 +12,24 @@ import ntplib
 
 def first_run(app):
     ntp_client = ntplib.NTPClient()
-    rety_times = 0
-    while True:
-        try:
-            response = ntp_client.request('cn.pool.ntp.org', version=3)
+    ntp_server_list = ['cn.pool.ntp.org', 'hk.pool.ntp.org', 'us.pool.ntp.org']
+    response = None
+
+    for ntp_server in ntp_server_list:
+        retry_threshold = 3
+        retry_times = 0
+
+        for _ in range(retry_threshold):
+            try:
+                response = ntp_client.request(ntp_server, version=3, timeout=2)
+                break
+            except:
+                retry_times += 1
+        if response:
             break
-        except Exception as e:
-            if rety_times > 3:
-                raise Exception(e)
-            rety_times += 1
+
+    if not response:
+        raise Exception(f'从[{",".join(ntp_server_list)}]获取时间失败')
 
     time_offset = -response.offset
     if time_offset >= 0 and time_offset > config.wallet_listener_interval:

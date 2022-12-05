@@ -11,29 +11,13 @@
 
 # 步骤
 ## 1.创建网站
-![BT_add_site](img/BT_add_site.png)\
+![BT_add_site](img/BT_add_site.png)
 ## 2.配置nginx
-
-### 将以下代码复制到nginx配置文件的server块中
-#### 注意`http://127.0.0.1:5001`后不应该加`/`，否则反代后的url会把api路径去掉
+### 添加反向代理
 #### 5001为flask启动的端口号，如果和其他应用冲突了自行更换修改
-```angular2html
-location ^~ /api/
-{
-    proxy_pass http://127.0.0.1:5001;
-    proxy_set_header Host $host;
-    proxy_set_header X-Real-IP $remote_addr;
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_set_header REMOTE-HOST $remote_addr;
-    proxy_set_header Upgrade $http_upgrade;
-    proxy_set_header Connection $connection_upgrade;
-    proxy_http_version 1.1;
-    # proxy_hide_header Upgrade;
-
-    add_header X-Cache $upstream_cache_status;
-}
-```
-
+![BT_add_site](img/BT_add_reverse_proxy.png)
+#### 注意`http://127.0.0.1:5001`后不应该加`/`，否则反代后的url会把api路径去掉
+![BT_add_site](img/BT_add_reverse_proxy_config.png)
 
 
 ### 确保nginx配置文件里面将.project排除在外，如果没有则自行添加
@@ -63,11 +47,11 @@ rm -rf mousdt
 ![img.png](img/BT_website_dir_final_result.png)
 
 ## 3.创建环境运行项目
-### 1.在Python项目管理器中的版本管理安装python3.7
+#### 1.在Python项目管理器中的版本管理安装python3.7
 ![img.png](img/BT_Python_Manager_position.png)
-### 2.添加项目
+#### 2.添加项目
 ![img.png](img/BT_PM2_setting.png)
-### 3.若项目运行失败则查看日志错误信息
+#### 3.若项目运行失败则查看日志错误信息
 ![img.png](img/BT_PM2_status.png)
 
 ## 4.生成账号密码
@@ -81,11 +65,9 @@ rm -rf mousdt
 /www/wwwroot/baidu.com/.project/767f69883dccd72f0110653567dcac59_venv/bin/bin/python3 -m flask admin --username OvOusername --password QAQpassword
 ```
 
-## 5.生成账号密码
-后台地址为`你的域名/page/admin/`或者`你的域名/page/admin/index.html`，如果报错500则说明nginx没有启动，如果报错404则说明项目没有下载或者路径不对，具体参考第2步下载项目
+## 5.登录后台
+### 后台地址为`你的域名/page/admin/`或者`你的域名/page/admin/index.html`，如果报错500则说明nginx没有启动，如果报错404则说明项目没有下载或者路径不对，具体参考第2步下载项目
 
-
-## 6.登录后台
 ### 在设置选项中填入获取的trongrid密钥，之后在交易选项中测试api是否可用
 ![img.png](img/admin_setting.png)
 
