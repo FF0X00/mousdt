@@ -6,7 +6,7 @@ import time
 from sqlalchemy_serializer import SerializerMixin
 from sqlalchemy import event
 from werkzeug.security import generate_password_hash
-from utils.notify import epay_notify
+from utils import SDK
 
 
 # 多个transfer对应一个order
@@ -85,8 +85,7 @@ class OrderModel(db.Model, SerializerMixin):
         self.notify()
 
     def notify(self):
-        if self.notify_type == 'epay':
-            epay_notify(self)
+        getattr(SDK, self.notify_type).notify(self)
 
 
 class AdminModel(db.Model, SerializerMixin):

@@ -31,5 +31,3 @@ def generate_QR_code(usdt_address):
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
     QRimg.save(output_path)
-
-# generate_QR_code('TJ6PCpvCe3DJLxFLwMNAYxXhcAAHiDnpqD')

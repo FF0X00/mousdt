@@ -1,11 +1,11 @@
 # from util.scheduler import start_wallet_job
-import hashlib
 import time
 
 import base58
 from cryptography.fernet import Fernet
 # from util.scheduler import finish_job
 from flask import g
+
 from exts import db
 from models import OrderModel, WalletModel, TransferModel, ConfigModel
 
@@ -23,24 +23,6 @@ def free_wallet(contract_type='TRON'):
     result = WalletModel.query.filter(WalletModel.status == 1, WalletModel.type == contract_type).order_by(
         *WalletModel.query_order()).first()
     return result
-
-
-def epay_sign(data):
-    # 签名校验
-    # 删除sign sign_type 空值
-    sign_data = {}
-    for dic_key in data.keys():
-        if dic_key != 'sign' and dic_key != 'sign_type' and data[dic_key] is not None:
-            sign_data[dic_key] = data[dic_key]
-
-    # 将发送或接收到的所有参数按照参数名ASCII码从小到大排序（a-z），sign、sign_type、和空值不参与签名！
-    sign_data = {k: v for k, v in sorted(sign_data.items())}
-
-    # 将排序后的参数拼接成URL键值对的格式，例如 a=b&c=d&e=f，参数值不要进行url编码。
-    param_string = "&".join([str(x) + "=" + str(sign_data[x]) for x in sign_data]) + get_config('epay_merchant_key')
-
-    # 再将拼接好的字符串与商户密钥KEY进行MD5加密得出sign签名参数，sign = md5 ( a=b&c=d&e=f + KEY ) （注意：+ 为各语言的拼接符，不是字符！），md5结果为小写。
-    return hashlib.md5(param_string.encode('utf-8')).hexdigest()
 
 
 def clean_pending_order():
