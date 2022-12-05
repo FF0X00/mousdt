@@ -405,7 +405,8 @@ def log():
                 line = f.readline()
                 log_list.append(line)
 
-    log_text = ''.join(log_list[::-1])
+    return_data = {}
+    return_data['log_text'] = log_text = ''.join(log_list[::-1])
     return restful.ok(data=log_text)
 
 

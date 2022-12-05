@@ -34,21 +34,21 @@ def register_cli(app: Flask):
 
         try:
             os.remove(sqlite_path)
-            print(sqlite_path)
+            print(f"successfully delete: {sqlite_path}")
         except:
-            pass
+            print(f"fail to delete: {sqlite_path}")
 
         try:
             shutil.rmtree(runtime_path)
-            print(runtime_path)
+            print(f"successfully delete: {runtime_path}")
         except:
-            pass
+            print(f"fail to delete: {runtime_path}")
 
         try:
             shutil.rmtree(QR_code_path)
-            print(QR_code_path)
+            print(f"successfully delete: {QR_code_path}")
         except:
-            pass
+            print(f"fail to delete: {QR_code_path}")
 
     @app.cli.command('dump_wallet', with_appcontext=True)
     def dump_wallet():
@@ -59,11 +59,15 @@ def register_cli(app: Flask):
         output_path = os.path.join(output_dir, output_basename)
 
         wallet_list = WalletModel.query.all()
+        if not wallet_list:
+            print(bordered_text(' no wallet in database '))
+            exit()
+
         with open(output_path, 'w', newline='', encoding='UTF8') as f:
             wr = csv.writer(f)
             header = ['address', 'secret', 'balance']
             wr.writerow(header)
             for wallet in wallet_list:
                 wr.writerow([wallet.address, wallet.secret, wallet.balance])
-        print(bordered_text(f'successfully save to:{output_path} '))
+        print(bordered_text(f'successfully save to: {output_path} '))
 

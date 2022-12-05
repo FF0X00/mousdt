@@ -61,7 +61,8 @@ def first_run(app):
             print(bordered_text(f'  Login Info\nusername:admin\npassword:{admin_password}\nepay_merchant_key:{epay_merchant_key}\n\n!!!This message is only shown once!!!'))
             db.session.commit()
 
-            generate_wallet()
+            # 第一次运行时自动创建钱包
+            # generate_wallet()
 
     cache.set('end_block_timestamp', None)
 

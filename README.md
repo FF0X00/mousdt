@@ -29,17 +29,22 @@ static      # 静态文件
 - [宝塔安装教程](wiki/BT_RUN.md)
 - 后台登录地址：`你的域名/page/admin`或`你的域名/page/admin/index.html`
 
+# 接口配置文档
+    1.易支付(参考彩虹易支付)
+    2.更多支付接口随后添加……
+
 # 操作命令
 #### 以下操作默认在`.project`目录下进行，python3命令自行替换成自己的python环境（若使用宝塔Python项目管理器则环境在`.project`目录下的`[MD5字符串]_venv`中）
 
-### DEBUG模式运行项目，并将`config.py`中的`DEBUG`改为`True`（生产环境不要用）
+### DEBUG模式运行项目（生产环境不要用）
     python3 -m flask run --port 5001 --debugger
+    并将config.py中的DEBUG改为True
 
 ### 修改后台登录账号密码
     python3 -m flask admin --username 你的用户名 --password 你的密码
 
 ### 导出钱包数据
-    python3 -m flask flask dump_wallet
+    python3 -m flask dump_wallet
 
 ### 清除所有运行数据（谨慎运行，请事先将钱包等重要数据下载到本地）
     python3 -m flask clear_data
