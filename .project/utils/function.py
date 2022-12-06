@@ -1,9 +1,7 @@
-# from util.scheduler import start_wallet_job
 import time
 
 import base58
 from cryptography.fernet import Fernet
-# from util.scheduler import finish_job
 from flask import g
 
 from exts import db
@@ -20,7 +18,7 @@ def get_config(config_key: str):
 
 
 def free_wallet(network='TRON'):
-    result = WalletModel.query.filter(WalletModel.status == 1, WalletModel.type == network).order_by(
+    result = WalletModel.query.filter(WalletModel.status == 1, WalletModel.network == network).order_by(
         *WalletModel.query_order()).first()
     return result
 
@@ -89,14 +87,16 @@ def tron_address_to_parameter(addr):
 
 
 def refresh_wallet(wallet, force_refresh=False):
-    from utils.api import get_tron_balance
+    from utils import api
 
     if not force_refresh:
         if wallet.refresh_time and wallet.refresh_time + int(get_config('wallet_refresh_cooldown_time')) > int(
                 time.time()):
             return wallet
 
-    balance = get_tron_balance(wallet.address)
+    get_balance = getattr(api, wallet.network).get_balance
+
+    balance = get_balance(wallet.address)
     wallet.balance = balance
     wallet.refresh_time = int(time.time())
     db.session.commit()

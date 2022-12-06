@@ -1,12 +1,9 @@
 import json
 import requests
 from flask import current_app
-import config
 from models import TransferModel
-from utils.function import hex_to_base58, get_config
+from utils.function import hex_to_base58, get_config, tron_address_to_parameter
 import base58
-from utils.function import tron_address_to_parameter
-
 
 headers = {
     "Accept": "application/json",
@@ -17,7 +14,7 @@ TRON_usdt_contracts = r"TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t"
 
 
 # 该函数递归调用，直至翻到最后一页，data_list给默认值，直接调用为空，递归调用赋值
-def get_TRON_transfer_list(data_list=[], **kwargs):
+def get_transfer_list_by_time_range(data_list=[], **kwargs):
     headers['TRON-PRO-API-KEY'] = get_config('trongrid_key')
     # timestamp只能用整数，单位是毫秒
     url = f"https://api.trongrid.io/v1/contracts/{TRON_usdt_contracts}/events?event_name=Transfer&only_unconfirmed=false&only_confirmed=false&limit=200&order_by=block_timestamp%2Casc"
@@ -48,7 +45,7 @@ def get_TRON_transfer_list(data_list=[], **kwargs):
             if page_num > 5:
                 # 获取第5页最后一个交易的时间戳，作为开始时间戳，结束时间戳不变，再次调用自己生成新的查询
                 start_block_timestamp = data_list[-1]['block_timestamp']
-                data_list = data_list + get_TRON_transfer_list(start_block_timestamp=start_block_timestamp,
+                data_list = data_list + get_transfer_list_by_time_range(start_block_timestamp=start_block_timestamp,
                                                                end_block_timestamp=end_block_timestamp)
                 break
 
@@ -82,10 +79,10 @@ def get_TRON_transfer_list(data_list=[], **kwargs):
     return transfer_list
 
 
-def is_API_work(network):
+def is_work(network):
     if network == "TRON":
         try:
-            result = get_TRON_transfer_list(start_block_timestamp=1670038526000, end_block_timestamp=1670038528000)
+            result = get_transfer_list_by_time_range(start_block_timestamp=1670038526000, end_block_timestamp=1670038528000)
         except:
             return False
 
@@ -95,7 +92,7 @@ def is_API_work(network):
     return False
 
 
-def get_tron_balance(address):
+def get_balance(address):
     url = 'https://api.trongrid.io/wallet/triggerconstantcontract'
     payload = {
         'owner_address': base58.b58decode_check(address).hex(),

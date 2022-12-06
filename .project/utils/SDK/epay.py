@@ -12,7 +12,7 @@ from flask import request, redirect, current_app, url_for
 from models import OrderModel
 from pay import bp as master_bp
 from utils import restful
-from utils.api import is_API_work
+from utils import api
 from utils.function import get_config, encrypt
 
 # 接口的唯一标识符，用于路径
@@ -79,7 +79,9 @@ def submit():
     if order_submit_data['sign'].lower() != sign_real.lower():
         return restful.params_err(message='sign fail')
 
-    if not is_API_work(network):
+    is_work = getattr(api, network).is_work
+
+    if not is_work(network):
         return restful.params_err(message='API not work')
 
     # 创建订单

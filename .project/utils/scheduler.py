@@ -7,7 +7,7 @@ from exts import cache
 from exts import db
 from exts import scheduler
 from models import OrderModel, TransferModel, WalletModel
-from utils.api import get_TRON_transfer_list
+from utils import api
 from utils.function import clean_pending_order, clean_locked_wallet, order_paid_amount
 
 
@@ -65,9 +65,11 @@ def check_job():
     transfer_list = []
     for network in network_list:
         if network == 'TRON':
+            get_transfer_list_by_time_range = getattr(api, network).get_transfer_list_by_time_range
+
             current_app.logger.debug(f'query {network} api [{datetime.datetime.fromtimestamp(int(start_block_timestamp / 1000)).strftime("%m-%d %H:%M:%S")} - {datetime.datetime.fromtimestamp(int(end_block_timestamp / 1000)).strftime("%m-%d %H:%M:%S")}]')
-            transfer_list = get_TRON_transfer_list(start_block_timestamp=start_block_timestamp,end_block_timestamp=end_block_timestamp)
-            # transfer_list = get_TRON_transfer_list(start_block_timestamp=1668788327000, end_block_timestamp=1668788329000)
+            transfer_list = get_transfer_list_by_time_range(start_block_timestamp=start_block_timestamp,end_block_timestamp=end_block_timestamp)
+            # transfer_list = get_transfer_list_by_time_range(start_block_timestamp=1668788327000, end_block_timestamp=1668788329000)
 
     cache.set('end_block_timestamp', end_block_timestamp)
 

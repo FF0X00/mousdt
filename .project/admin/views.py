@@ -12,10 +12,9 @@ import datetime
 import sqlalchemy
 from exts import db, limiter
 from utils.tool.generate_wallet import generate_wallet
-from utils.api import get_TRON_transfer_list
 from file_read_backwards import FileReadBackwards
 from utils.tool.QR_code import generate_QR_code
-from utils.api import is_API_work
+from utils import api
 from utils import SDK
 
 
@@ -274,11 +273,18 @@ def transfer():
     return restful.ok(data=return_data)
 
 
-@bp.route("/API_test", methods=['POST'])
-def API_test():
+@bp.route("/api_test", methods=['POST'])
+def api_test():
+
+    # input_data = request.get_json()
+    # api_network = input_data.get('network')
+    api_network = 'TRON'
+
+    is_work = getattr(api, api_network).is_work
+
     return_data = []
     try:
-        if is_API_work('TRON'):
+        if is_work(api_network):
             return_data.append({'type': 'TRON', 'status': '成功'})
         else:
             return_data.append({'type': 'TRON', 'status': '失败'})
@@ -341,7 +347,7 @@ def wallet_add():
 
     wallet = WalletModel()
     wallet.address = wallet_address
-    wallet.type = wallet_type
+    wallet.network = wallet_type
     wallet.priority = wallet_priority if wallet_priority else 0
     wallet.secret = wallet_secret if wallet_secret else None
 
@@ -407,7 +413,7 @@ def log():
 
     return_data = {}
     return_data['log_text'] = log_text = ''.join(log_list[::-1])
-    return restful.ok(data=log_text)
+    return restful.ok(data=return_data)
 
 
 @bp.route("/order_url_generate", methods=['POST'])

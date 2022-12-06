@@ -10,7 +10,7 @@ from utils.function import order_paid_amount, get_config, decrypt, encrypt
 import re
 from utils import restful
 from exts import db, cache
-from utils.api import is_API_work
+
 
 @bp.route('/',methods=['GET','POST'])
 def index():
