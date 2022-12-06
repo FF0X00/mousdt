@@ -1,5 +1,6 @@
 .project/runtime
 .project/bak
+.project/tests
 /frontend
 QR_code
 .project/utils/captcha

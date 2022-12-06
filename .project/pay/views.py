@@ -17,13 +17,6 @@ def index():
     return ""
 
 
-def order_submit_error(error_msg):
-    return_data = {}
-    return_data['code'] = -1
-    return_data['msg'] = error_msg
-    return jsonify(return_data)
-
-
 @bp.route('/check_order', methods=['POST'])
 def check_order():
     input_data = request.get_json()

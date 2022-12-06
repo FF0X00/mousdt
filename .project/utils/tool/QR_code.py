@@ -1,9 +1,11 @@
 import qrcode
 from PIL import Image
 import os
+import config
+
 
 def generate_QR_code(usdt_address):
-    usdt_logo = 'utils/tool/usdt.png'
+    usdt_logo = os.path.join(config.BASE_DIR, 'utils', 'tool', 'usdt.png')
 
     logo = Image.open(usdt_logo).convert('RGBA')
     basewidth = 100
@@ -26,8 +28,8 @@ def generate_QR_code(usdt_address):
           (QRimg.size[1] - logo.size[1]) // 2)
     QRimg.paste(logo, pos, logo)
 
-    output_dir = "../static/QR_code/"
-    output_path = output_dir + usdt_address + '.png'
+    output_dir = os.path.abspath(os.path.join(config.BASE_DIR, '..', 'static', 'QR_code'))
+    output_path = os.path.join(output_dir, usdt_address + '.png')
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
     QRimg.save(output_path)

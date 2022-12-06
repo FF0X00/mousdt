@@ -180,22 +180,6 @@ def order():
     return restful.ok(data=return_data)
 
 
-@bp.route("/order_detail", methods=['POST'])
-def order_detail():
-    order_id = request.get_json().get('id')
-    order = OrderModel.query.filter(OrderModel.id == order_id).first()
-    return_data = order.to_dict()
-    return restful.ok(data=return_data)
-
-
-@bp.route("/wallet_detail", methods=['POST'])
-def wallet_detail():
-    wallet_id = request.get_json().get('id')
-    wallet = OrderModel.query.filter(WalletModel.id == wallet_id).first()
-    return_data = wallet.to_dict()
-    return restful.ok(data=return_data)
-
-
 @bp.route("/wallet_refresh", methods=['POST'])
 def wallet_refresh():
     input_data = request.get_json()
@@ -212,14 +196,6 @@ def wallet_refresh():
             refresh_wallet(wallet, force_refresh=force_refresh)
 
     return restful.ok()
-
-
-@bp.route("/transfer_detail", methods=['POST'])
-def transfer_detail():
-    transfer_id = request.get_json().get('id')
-    transfer = OrderModel.query.filter(WalletModel.id == transfer_id).first()
-    return_data = transfer.to_dict()
-    return restful.ok(data=return_data)
 
 
 @bp.route("/order_notify", methods=['POST'])
@@ -394,7 +370,7 @@ def setting():
 def setting_edit():
     input_data = request.get_json()
     for key in input_data:
-        ConfigModel.query.filter(ConfigModel.key == key).update({'value': input_data[key].strip()})
+        ConfigModel.query.filter(ConfigModel.key == key).update({'value': str(input_data[key]).strip()})
 
     db.session.commit()
     return restful.ok()
