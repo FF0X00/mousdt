@@ -71,6 +71,20 @@ rm -rf mousdt
 ### 在设置选项中填入获取的trongrid密钥，之后在交易选项中测试api是否可用
 ![img.png](img/admin_setting.png)
 
+# 数据库
+项目设置默认使用文件数据库sqlite，保存在`.project`目录下。如果想使用其他数据库，请自行安装相应的依赖并修改配置文件
+* MySql
+1. 安装`pymysql`包
+     * 在宝塔Python项目管理器中安装``pymysql`` 版本为``1.0.2``
+     * 或者使用命令安装 ``[你的python环境]/bin/pip install pymysql==1.0.2``
+
+
+  2. 修改配置
+     * `config.py`文件中找到`SQLALCHEMY_DATABASE_URI`改为如以下所示
+       ```
+       SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://登录用户名:登陆密码@127.0.0.1:3306/数据库名'
+       ```
+       
 # 常见问题
 ### Python项目管理器日志报错：
 #### 1.permmission denied 

@@ -17,18 +17,18 @@ class OrderModel(db.Model, SerializerMixin):
     serialize_rules = ('-wallet',)
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    notify_type = db.Column(db.String(100), nullable=False)
+    notify_type = db.Column(db.String(20), nullable=False)
     merchant_id = db.Column(db.Integer, nullable=False, default=0)
-    merchant_order_id = db.Column(db.String(100), nullable=False)
-    merchant_good_name = db.Column(db.String(100), nullable=False)
-    currency = db.Column(db.String(100), nullable=False, default="USDT")
-    network = db.Column(db.String(100), nullable=False)
+    merchant_order_id = db.Column(db.String(50), nullable=False)
+    merchant_good_name = db.Column(db.String(50), nullable=False)
+    currency = db.Column(db.String(20), nullable=False, default="USDT")
+    network = db.Column(db.String(20), nullable=False)
     price = db.Column(db.Float(), nullable=False)
     paid_price = db.Column(db.Float(), nullable=False, default=0)
     notify_url = db.Column(db.String(255), nullable=False)
     return_url = db.Column(db.String(255), nullable=False)
 
-    wallet_address = db.Column(db.String(100), nullable=False)
+    wallet_address = db.Column(db.String(255), nullable=False)
     create_time = db.Column(db.Integer(), nullable=False)
     end_time = db.Column(db.Integer(), nullable=False)
     status = db.Column(db.Integer(), nullable=False, default=0)
@@ -128,8 +128,8 @@ class TransferModel(db.Model, SerializerMixin):
     __tablename__ = 'transfer'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    currency = db.Column(db.String(100), nullable=False)
-    network = db.Column(db.String(100), nullable=False)
+    currency = db.Column(db.String(20), nullable=False)
+    network = db.Column(db.String(20), nullable=False)
     transaction_id = db.Column(db.String(100), nullable=False, unique=True)
     price = db.Column(db.Float(), nullable=False)
     create_time = db.Column(db.Integer(), nullable=False)
@@ -149,7 +149,7 @@ class WalletModel(db.Model, SerializerMixin):
     __tablename__ = 'wallet'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    network = db.Column(db.String(100), nullable=False)
+    network = db.Column(db.String(20), nullable=False)
     address = db.Column(db.String(100), nullable=False, unique=True)
     secret = db.Column(db.String(100), nullable=True)
     status = db.Column(db.Integer(), nullable=False, default=1)
@@ -169,9 +169,9 @@ class WalletModel(db.Model, SerializerMixin):
 
 class ConfigModel(db.Model, SerializerMixin):
     __tablename__ = 'config'
-    key = db.Column(db.String(), nullable=False, primary_key=True)
-    value = db.Column(db.String(), nullable=True)
-    name = db.Column(db.String(), nullable=True)
+    key = db.Column(db.String(255), nullable=False, primary_key=True)
+    value = db.Column(db.String(255), nullable=True)
+    name = db.Column(db.String(255), nullable=True)
 
     @classmethod
     def get_all(cls):

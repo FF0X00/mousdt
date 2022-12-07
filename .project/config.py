@@ -5,7 +5,7 @@ import datetime
 DEBUG = False
 
 SQLALCHEMY_DATABASE_URI = 'sqlite:///database.db' #此为相对路径
-# SQLALCHEMY_DATABASE_URI = 'mysql://username:password@127.0.0.1/db'
+
 SQLALCHEMY_TRACK_MODIFICATIONS = False  # 如果设置成 True (默认情况)，Flask-SQLAlchemy 将会追踪对象的修改并且发送信号。这需要额外的内存， 如果不必要的可以禁用它。
 JSON_AS_ASCII = False
 SECRET_KEY = os.urandom(24)
