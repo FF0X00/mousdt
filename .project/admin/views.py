@@ -1,7 +1,7 @@
 import os.path
 from . import bp
 from flask import request, make_response, redirect, url_for, render_template, jsonify, session
-from utils.function import get_config, refresh_wallet
+from utils.function import get_config, refresh_wallet, get_api
 from werkzeug.security import check_password_hash
 import json
 from utils import restful
@@ -14,7 +14,6 @@ from exts import db, limiter
 from utils.tool.generate_wallet import generate_wallet
 from file_read_backwards import FileReadBackwards
 from utils.tool.QR_code import generate_QR_code
-from utils import api
 from utils import SDK
 
 
@@ -254,18 +253,19 @@ def api_test():
 
     # input_data = request.get_json()
     # api_network = input_data.get('network')
-    api_network = 'TRON'
+    api_network = 'tron'
 
-    is_work = getattr(api, api_network).is_work
+    api = get_api(api_network)
+    is_work = api.is_work
 
     return_data = []
     try:
         if is_work(api_network):
-            return_data.append({'type': 'TRON', 'status': '成功'})
+            return_data.append({'type': 'tron', 'status': '成功'})
         else:
-            return_data.append({'type': 'TRON', 'status': '失败'})
+            return_data.append({'type': 'tron', 'status': '失败'})
     except:
-        return_data.append({'type': 'TRON', 'status': '失败'})
+        return_data.append({'type': 'tron', 'status': '失败'})
 
     return restful.ok(data=return_data)
 
@@ -359,9 +359,7 @@ def wallet_delete():
 
 @bp.route("/setting", methods=['POST'])
 def setting():
-    return_data = ConfigModel.get_all()
-
-    return_data.pop('encrypt_key')
+    return_data = [temp.to_dict() for temp in ConfigModel.query.all() if temp.key != 'encrypt_key']
 
     return restful.ok(data=return_data)
 

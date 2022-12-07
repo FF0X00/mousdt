@@ -12,8 +12,7 @@ from flask import request, redirect, current_app, url_for
 from models import OrderModel
 from pay import bp as master_bp
 from utils import restful
-from utils import api
-from utils.function import get_config, encrypt
+from utils.function import get_config, encrypt, get_api
 
 # 接口的唯一标识符，用于路径
 identify_name = os.path.basename(__file__).replace('.py', '')
@@ -52,10 +51,10 @@ def submit():
     order_submit_data['param'] = request_data.get('param')
 
     # 支付方式
-    if order_submit_data['type'] == 'TRON':
-        network = 'TRON'
+    if order_submit_data['type'] == 'tron':
+        network = 'tron'
     else:
-        network = 'TRON'
+        network = 'tron'
         # return restful.params_err('no such type')
 
     if order_submit_data['sign_type'] != "MD5":
@@ -79,7 +78,7 @@ def submit():
     if order_submit_data['sign'].lower() != sign_real.lower():
         return restful.params_err(message='sign fail')
 
-    is_work = getattr(api, network).is_work
+    is_work = get_api(network).is_work
 
     if not is_work(network):
         return restful.params_err(message='API not work')
@@ -139,7 +138,7 @@ def notify(order: OrderModel):
 def generate_order_url(**kwargs):
     data = {}
     data['pid'] = kwargs.get("pid", 1)
-    data['type'] = kwargs.get("", 'TRON')
+    data['type'] = kwargs.get("", 'tron')
     data['notify_url'] = 'notify_url'
     data['return_url'] = 'return_url'
     data['out_trade_no'] = int(random.random() * 10e10)

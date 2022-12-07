@@ -7,8 +7,7 @@ from exts import cache
 from exts import db
 from exts import scheduler
 from models import OrderModel, TransferModel, WalletModel
-from utils import api
-from utils.function import clean_pending_order, clean_locked_wallet, order_paid_amount
+from utils.function import clean_pending_order, clean_locked_wallet, order_paid_amount, get_api, get_config
 
 
 def start_scheduler():
@@ -59,13 +58,17 @@ def check_job():
         start_block_timestamp = int(cache.get('end_block_timestamp'))
     end_block_timestamp = int((time.time() - config.wallet_listener_interval) * 1000)
 
+    # # 程序启动后，存在未完成订单，且api成功执行过一次，且之后api失效过久的时候，会导致查询时间范围过大
+    # if end_block_timestamp - start_block_timestamp > get_config('order_duration') * 1000:
+    #     start_block_timestamp = int((time.time() - config.wallet_listener_interval * 2) * 1000)
+
     result = db.session.query(OrderModel.network).group_by(OrderModel.network).all()
     network_list = [temp[0] for temp in result]
 
     transfer_list = []
     for network in network_list:
-        if network == 'TRON':
-            get_transfer_list_by_time_range = getattr(api, network).get_transfer_list_by_time_range
+        if network == 'tron':
+            get_transfer_list_by_time_range = get_api(network).get_transfer_list_by_time_range
 
             current_app.logger.debug(f'query {network} api [{datetime.datetime.fromtimestamp(int(start_block_timestamp / 1000)).strftime("%m-%d %H:%M:%S")} - {datetime.datetime.fromtimestamp(int(end_block_timestamp / 1000)).strftime("%m-%d %H:%M:%S")}]')
             transfer_list = get_transfer_list_by_time_range(start_block_timestamp=start_block_timestamp,end_block_timestamp=end_block_timestamp)
