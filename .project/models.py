@@ -167,10 +167,11 @@ class WalletModel(db.Model, SerializerMixin):
         return cls.priority.desc(), cls.balance.desc(), cls.id.asc()
 
 
-class ConfigModel(db.Model):
+class ConfigModel(db.Model, SerializerMixin):
     __tablename__ = 'config'
     key = db.Column(db.String(), nullable=False, primary_key=True)
     value = db.Column(db.String(), nullable=True)
+    name = db.Column(db.String(), nullable=True)
 
     @classmethod
     def get_all(cls):

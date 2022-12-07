@@ -49,11 +49,11 @@ def first_run(app):
             db.session.commit()
 
             epay_merchant_key = ''.join(random.choice(string.ascii_lowercase) for _ in range(16))
-            db.session.add(ConfigModel(key='epay_merchant_key', value=epay_merchant_key))
-            db.session.add(ConfigModel(key='order_duration', value='900'))
-            db.session.add(ConfigModel(key='wallet_refresh_cooldown_time', value='100'))
-            db.session.add(ConfigModel(key='encrypt_key', value=generate_encrypt_key().decode()))
-            db.session.add(ConfigModel(key='trongrid_key', value=''))
+            db.session.add(ConfigModel(key='epay_merchant_key', value=epay_merchant_key, name='易支付商户密钥'))
+            db.session.add(ConfigModel(key='order_duration', value='900',name='订单持续时间'))
+            db.session.add(ConfigModel(key='wallet_refresh_cooldown_time', value='100',name='钱包刷新冷却时间'))
+            db.session.add(ConfigModel(key='encrypt_key', value=generate_encrypt_key().decode(),name='加密密钥'))
+            db.session.add(ConfigModel(key='trongrid_key', value='',name='trongrid API 密钥'))
 
             admin_password = ''.join(random.choice(string.ascii_lowercase) for _ in range(8))
             db.session.add(AdminModel(username='admin', password=admin_password))

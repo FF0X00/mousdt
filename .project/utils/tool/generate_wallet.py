@@ -22,7 +22,7 @@ def generate_wallet(wallet_num=100):
         secret = wallet_data['secret']
         wallet_obj.address = address
         wallet_obj.secret = secret
-        wallet_obj.network = 'TRON'
+        wallet_obj.network = 'tron'
         wallet_list.append(wallet_obj)
 
     for wallet in wallet_list:

@@ -1,7 +1,6 @@
 from . import bp
 from flask import request, redirect, url_for, render_template, jsonify, g, current_app
 from utils import function
-from utils import api
 from utils import scheduler
 from models import OrderModel, TransferModel
 import config

@@ -17,7 +17,12 @@ def get_config(config_key: str):
     return g.config.get(config_key, None)
 
 
-def free_wallet(network='TRON'):
+def get_api(network):
+    api = getattr(__import__('utils.API', fromlist=[network]), network)
+    return api
+
+
+def free_wallet(network='tron'):
     result = WalletModel.query.filter(WalletModel.status == 1, WalletModel.network == network).order_by(
         *WalletModel.query_order()).first()
     return result
@@ -87,16 +92,15 @@ def tron_address_to_parameter(addr):
 
 
 def refresh_wallet(wallet, force_refresh=False):
-    from utils import api
-
     if not force_refresh:
         if wallet.refresh_time and wallet.refresh_time + int(get_config('wallet_refresh_cooldown_time')) > int(
                 time.time()):
             return wallet
 
-    get_balance = getattr(api, wallet.network).get_balance
+    network = wallet.network
+    api = get_api(network)
 
-    balance = get_balance(wallet.address)
+    balance = api.get_balance(wallet.address)
     wallet.balance = balance
     wallet.refresh_time = int(time.time())
     db.session.commit()
