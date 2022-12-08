@@ -1,9 +1,15 @@
 import json
 import requests
 from flask import current_app
-from models import TransferModel
+from models import TransferModel, WalletModel
+from exts import db
 from utils.function import hex_to_base58, get_config, tron_address_to_parameter
 import base58
+
+from tronpy import Tron
+from tronpy.keys import PrivateKey
+from tronpy.providers import HTTPProvider
+
 
 headers = {
     "Accept": "application/json",
@@ -31,7 +37,7 @@ def get_transfer_list_by_time_range(**kwargs):
         raise Exception(f"status code:{response.status_code} url:{url}")
 
     data_list = json.loads(response.text)['data']
-    # print(data_list)
+
     if json.loads(response.text)['meta'].get("links"):
         next_link = json.loads(response.text)['meta']['links']['next']
     else:
@@ -121,3 +127,123 @@ def get_balance(address):
     balance = int(val, 16) / 1e6
 
     return balance
+
+
+def get_fee_balance(address):
+    url = "https://api.trongrid.io/walletsolidity/getaccount"
+    payload = {
+        "address": address,
+        "visible": True
+    }
+
+    headers['tron-PRO-API-KEY'] = get_config('trongrid_key')
+    response = requests.post(url, json=payload, headers=headers)
+
+    data = response.json()
+    if response.status_code != 200:
+        raise Exception(f"status code:{response.status_code} url:{url}")
+
+    if data:
+        trx_balance = data['balance'] / 1e6
+    else:
+        trx_balance = 0
+
+    return trx_balance
+
+
+def transfer_fee(from_address, to_address, price, pkey):
+    client = Tron(HTTPProvider(api_key=get_config('trongrid_key')))
+    priv_key = PrivateKey(bytes.fromhex(pkey))
+    amount = int(price * 1e6)
+
+    txn = (
+        client.trx.transfer(from_address, to_address, amount)
+            .build()
+            .sign(priv_key)
+    )
+
+    current_app.logger.debug(f'广播交易：从地址 {from_address} 向地址 {to_address} 转账 {price} trx')
+
+    result = txn.broadcast().wait()
+
+    current_app.logger.debug(f'交易结果：{result}')
+
+    transfer = TransferModel()
+    transfer.currency = 'trx'
+    transfer.network = 'tron'
+    transfer.transaction_id = result['id']
+    transfer.price = price
+    transfer.create_time = int(result['blockTimeStamp'] / 1000)
+    transfer.from_address = from_address
+    transfer.to_address = to_address
+    transfer.message = f"成功"
+    transfer.purpose = 'fee'
+
+    db.session.add(transfer)
+    db.session.commit()
+
+    return True
+
+
+def transfer(from_address, to_address, price, pkey, currency="USDT"):
+    # get_contract()调用一次API, build()调用两次API，第一次获取当前区块，第二次获取权限列表
+    client = Tron(HTTPProvider(api_key=get_config('trongrid_key')))
+    priv_key = PrivateKey(bytes.fromhex(pkey))
+    amount = int(price * 1e6)
+
+    if currency == 'USDT':
+        contract_address = r"TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t"
+    else:
+        raise Exception(f'Not support currency:{currency}')
+
+    contract = client.get_contract(contract_address)
+
+    txn = (
+        contract.functions.transfer(to_address, amount)
+            .with_owner(from_address)  # address of the private key
+            .fee_limit(20_000_000)
+            .build()
+            .sign(priv_key)
+    )
+    current_app.logger.debug(f'广播交易：从地址 {from_address} 向地址 {to_address} 转账 {price} {currency}')
+
+    result = txn.broadcast().wait()
+
+    current_app.logger.debug(f'交易结果：{result}')
+
+    fee = result.get('fee') / 1e6 if result.get('fee') else 0
+
+    if result['receipt']['result'] == 'SUCCESS':
+        success_fail_msg = '成功'
+        fail_msg = ''
+
+        # 刷新钱包
+        for address in [from_address, to_address]:
+            WalletModel.query.filter(WalletModel.address == address).update({'balance': get_balance(address), 'fee_balance': get_fee_balance(address)})
+        db.session.commit()
+
+    else:
+        success_fail_msg = '失败'
+        fail_msg = result['resMessage']
+
+    transfer = TransferModel()
+    transfer.currency = currency
+    transfer.network = 'tron'
+    transfer.transaction_id = result['id']
+    transfer.price = price
+    transfer.create_time = int(result['blockTimeStamp'] / 1000)
+    transfer.from_address = from_address
+    transfer.to_address = to_address
+    transfer.message = f"{success_fail_msg}，消耗手续费{fee}，消息：{fail_msg}"
+    transfer.purpose = 'transfer'
+
+    db.session.add(transfer)
+    db.session.commit()
+
+    if result['receipt']['result'] == 'SUCCESS':
+        # 成功
+        return True
+    else:
+        # 失败
+        return False
+

@@ -15,6 +15,7 @@ from utils.tool.generate_wallet import generate_wallet
 from file_read_backwards import FileReadBackwards
 from utils.tool.QR_code import generate_QR_code
 from utils import SDK
+from tronpy.keys import PrivateKey
 
 
 @bp.route("/login", methods=['POST'])
@@ -290,10 +291,17 @@ def wallet():
         record_query = record_query.filter(WalletModel.address == address)
 
     record_query = record_query.paginate(page=current_page, per_page=per_page, error_out=False)
+    collect_wallet = WalletModel.query.filter(WalletModel.purpose == 'collect').first()
+
+    if collect_wallet:
+        collect_wallet_address = collect_wallet.address
+    else:
+        collect_wallet_address = ''
 
     return_data = {}
     return_data['total'] = record_query.total
     return_data['items'] = [temp.to_dict() for temp in record_query.items]
+    return_data['collect_wallet_address'] = collect_wallet_address
 
     return restful.ok(data=return_data)
 
@@ -317,13 +325,19 @@ def wallet_edit():
 def wallet_add():
     input_data = request.get_json()
     wallet_address = input_data.get('address').strip()
-    wallet_type = input_data.get('type')
+    wallet_network = input_data.get('network')
     wallet_priority = input_data.get('priority')
     wallet_secret = input_data.get('secret')
 
+    if WalletModel.query.filter(WalletModel.address == wallet_address).first():
+        return restful.params_err(message='钱包地址重复添加')
+
+    if wallet_secret and wallet_address != PrivateKey(bytes.fromhex(wallet_secret)).public_key.to_base58check_address():
+        return restful.params_err(message='钱包密钥错误')
+
     wallet = WalletModel()
     wallet.address = wallet_address
-    wallet.network = wallet_type
+    wallet.network = wallet_network
     wallet.priority = wallet_priority if wallet_priority else 0
     wallet.secret = wallet_secret if wallet_secret else None
 
@@ -331,6 +345,10 @@ def wallet_add():
 
     db.session.add(wallet)
     db.session.commit()
+    try:
+        refresh_wallet(wallet, force_refresh=True)
+    except:
+        pass
 
     return restful.ok()
 
@@ -355,6 +373,53 @@ def wallet_delete():
     db.session.commit()
 
     return restful.ok()
+
+
+@bp.route("/balance_transfer", methods=['POST'])
+def balance_transfer():
+    input_data = request.get_json()
+    from_address = input_data.get('from_address')
+    to_address = input_data.get('to_address')
+    amount = float(input_data.get('amount'))
+
+    from_wallet = WalletModel.query.filter(WalletModel.address == from_address).first()
+    to_wallet = WalletModel.query.filter(WalletModel.address == to_address).first()
+
+    if from_wallet == to_wallet:
+        return restful.params_err('转账钱包和接受钱包不能一样')
+
+    if not from_wallet or not to_wallet:
+        return restful.params_err('数据库中找不到相应钱包地址，请检查再试')
+
+    if from_wallet.network != to_wallet.network:
+        return restful.params_err('转账钱包和接受钱包主网不一致')
+
+
+    network = from_wallet.network
+    api = get_api(network)
+
+    fee_balance = api.get_fee_balance(from_address)
+    if fee_balance < int(get_config('transfer_trx_min')):
+        fee_wallet = WalletModel.query.filter(WalletModel.purpose == 'fee').first()
+        if not fee_wallet:
+            return restful.params_err(message=f'转账钱包手续费低于{get_config("transfer_trx_min")}，没有设置手续费钱包')
+
+        fee_transfer_amount = int(int(get_config('transfer_trx_max')) - fee_balance)
+        result = api.transfer_fee(fee_wallet.address, from_address, fee_transfer_amount, fee_wallet.secret)
+
+        if not result:
+            return restful.params_err(message=f'转账钱包手续费低于{get_config("transfer_trx_min")}，且手续费钱包手续费不足')
+
+    from_address_balance = api.get_balance(from_address)
+    if amount > from_address_balance:
+        return restful.params_err(message="转账钱包余额不足")
+
+    result = api.transfer(from_wallet.address, to_address, amount, from_wallet.secret)
+
+    if not result:
+        return restful.params_err(message='转账失败')
+
+    return restful.ok(message=f'成功向{from_address}转账{amount}')
 
 
 @bp.route("/setting", methods=['POST'])

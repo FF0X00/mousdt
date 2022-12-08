@@ -17,7 +17,7 @@
             <div style="text-align: center;"><strong style="font-size: 2rem;">{{ order_price }} {{ currency }}</strong>
             </div>
 
-            <img style="width: 100%" :src="'/static/QR_code/' + wallet_address + '.png'"/>
+            <img style="width: 100%" :src="wallet_address ? '/static/QR_code/' + wallet_address + '.png' : ''"/>
 
             <div style="margin-top: 15px;" @click="copyWalletAddress" class="clipboard"
                  data-clipboard-target="#wallet_address">
@@ -132,6 +132,10 @@
                 if (this.remain_time % this.order_check_interval == 0) {
                     this.check_order();
                 }
+                if(this.remain_time <=0 ){
+                    this.timeout()
+                }
+
                 this.remain_time = this.remain_time - 1;
 
             }, 1000);
@@ -166,11 +170,7 @@
                         window.location.href = return_url;
                     }
                     if (status == -1) {
-                        clearInterval(this.timer);
-                        let message = response.data.msg;
-                        this.$message(message);
-                        this.dialogVisible = true;
-                        this.isLoading = true;
+                        this.timeout()
                     }
 
                     let transfer_items = response.data.data.transfer_items;
@@ -194,6 +194,14 @@
             langChange(data) {
                 this.lang = data
                 this.t = ELEMENT.lang[data]['el']
+            },
+            timeout(){
+                clearInterval(this.timer);
+                let message = response.data.msg;
+                this.$message(message);
+                this.dialogVisible = true;
+                this.isLoading = true;
+                this.wallet_address = undefined;
             }
         },
         filters: {

@@ -101,7 +101,11 @@ def refresh_wallet(wallet, force_refresh=False):
     api = get_api(network)
 
     balance = api.get_balance(wallet.address)
+    fee_balance = api.get_fee_balance(wallet.address)
     wallet.balance = balance
+    wallet.fee_balance = fee_balance
     wallet.refresh_time = int(time.time())
     db.session.commit()
     return wallet
+
+

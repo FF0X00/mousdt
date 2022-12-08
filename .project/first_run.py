@@ -54,6 +54,8 @@ def first_run(app):
             db.session.add(ConfigModel(key='wallet_refresh_cooldown_time', value='100',name='钱包刷新冷却时间'))
             db.session.add(ConfigModel(key='encrypt_key', value=generate_encrypt_key().decode(),name='加密密钥'))
             db.session.add(ConfigModel(key='trongrid_key', value='',name='trongrid API 密钥'))
+            db.session.add(ConfigModel(key='transfer_trx_min', value='20',name='trx最小值（手续费低于该值从手续费钱包补到最大值）'))
+            db.session.add(ConfigModel(key='transfer_trx_max', value='40',name='trx最大值'))
 
             admin_password = ''.join(random.choice(string.ascii_lowercase) for _ in range(8))
             db.session.add(AdminModel(username='admin', password=admin_password))

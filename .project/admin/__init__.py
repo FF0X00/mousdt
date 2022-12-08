@@ -26,7 +26,7 @@ def admin_required(func):
         jwt_required_func()
         identity = get_jwt_identity()  # 直接从header里拿token
         if 'admin' not in identity:
-            return restful.permission_err()
+            return restful.permission_err(message='未登录')
 
         return func(*args, **kwargs)
     return inner

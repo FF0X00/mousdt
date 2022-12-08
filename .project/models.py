@@ -28,7 +28,7 @@ class OrderModel(db.Model, SerializerMixin):
     notify_url = db.Column(db.String(255), nullable=False)
     return_url = db.Column(db.String(255), nullable=False)
 
-    wallet_address = db.Column(db.String(255), nullable=False)
+    wallet_address = db.Column(db.String(100), nullable=False)
     create_time = db.Column(db.Integer(), nullable=False)
     end_time = db.Column(db.Integer(), nullable=False)
     status = db.Column(db.Integer(), nullable=False, default=0)
@@ -135,6 +135,8 @@ class TransferModel(db.Model, SerializerMixin):
     create_time = db.Column(db.Integer(), nullable=False)
     from_address = db.Column(db.String(100), nullable=False)
     to_address = db.Column(db.String(100), nullable=False)
+    message = db.Column(db.String(100), nullable=True)
+    purpose = db.Column(db.String(100), nullable=False, default='receive')
 
     # 一对多条件：
     # 1.使用这个必须在多的一方创建外键ForeignKey
@@ -154,10 +156,12 @@ class WalletModel(db.Model, SerializerMixin):
     secret = db.Column(db.String(100), nullable=True)
     status = db.Column(db.Integer(), nullable=False, default=1)
     balance = db.Column(db.Float(), nullable=False, default=0)
+    fee_balance = db.Column(db.Float(), nullable=False, default=0)
     start_lock_time = db.Column(db.Integer(), nullable=True)
     end_lock_time = db.Column(db.Integer(), nullable=True)
     refresh_time = db.Column(db.Integer(), nullable=True)
-    priority = db.Column(db.Integer, nullable=False, default=0)
+    priority = db.Column(db.Integer, nullable=False, default=1)
+    purpose = db.Column(db.String(100), nullable=False, default='receive')
 
     # 表上看不到的字段，表示关联
     orders = db.relationship("OrderModel", backref="wallet")

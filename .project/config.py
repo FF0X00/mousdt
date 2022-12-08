@@ -2,7 +2,7 @@ import os
 import datetime
 
 # DEBUG为False时，DEBUG级别的日志无法生成
-DEBUG = False
+DEBUG = True
 
 SQLALCHEMY_DATABASE_URI = 'sqlite:///database.db' #此为相对路径
 
